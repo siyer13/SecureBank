@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+ 	http://cxf.apache.org/jaxrs
+ 	http://cxf.apache.org/schemas/jaxrs.xsd
+ 	http://cxf.apache.org/jaxws
+ 	http://cxf.apache.org/schemas/jaxws.xsd
+ 	http://www.springframework.org/schema/context
+ 	http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<context:component-scan base-package="com.securebank.*" />
+
+	<!-- <jaxrs:server id="employeeService" address="/employeeservices"> <jaxrs:providers> 
+		<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" /> </jaxrs:providers> 
+		<jaxrs:serviceBeans> <ref bean="cxfServiceImpl" /> </jaxrs:serviceBeans> 
+		<jaxrs:extensionMappings> <entry key="json" value="application/json" /> <entry 
+		key="xml" value="application/xml" /> </jaxrs:extensionMappings> </jaxrs:server> -->
+
+
+	<jaxrs:server id="accountService" address="/accountservices">
+		<jaxrs:providers>
+			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+		</jaxrs:providers>
+		<jaxrs:serviceBeans>
+			<ref bean="bankAccountServiceImpl" />
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+			<entry key="json" value="application/json" />
+			<entry key="xml" value="application/xml" />
+		</jaxrs:extensionMappings>
+	</jaxrs:server>
+
+	<bean id="bankAccountServiceImpl"
+		class="com.securebank.cxfrestservice.internal.BankAccountServiceImpl"
+		scope="prototype" />
+	<bean id="customerDao" class="com.securebank.cxfrestservice.dao.CustomerDaoImpl"
+		scope="prototype">
+		<property name="dataSource" ref="dataSource">
+		</property>
+	</bean>
+	
+	<bean id="customer" class="com.securebank.cxfrestservice.model.Customer"
+		scope="prototype" />
+
+	<bean id="account" class="com.securebank.cxfrestservice.model.Account"
+		scope="prototype" />
+	<bean id="accountType" class="com.securebank.cxfrestservice.model.AccountType"
+		scope="prototype" />
+
+	<bean id="cxfServiceImpl"
+		class="com.securebank.cxfrestservice.internal.CxfRestServiceImpl" />
+	<bean id="employeeDao" class="com.securebank.cxfrestservice.dao.EmployeeDao" />
+
+
+	<!-- -->
+	<!-- Configuration for encryptor, based on environment variables. -->
+	<!-- -->
+	<!-- In this example, the encryption password will be read from an -->
+	<!-- environment variable called "APP_ENCRYPTION_PASSWORD" which, once -->
+	<!-- the application has been started, could be safely unset. -->
+	<!-- -->
+	<bean id="environmentVariablesConfiguration"
+		class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		<property name="algorithm" value="PBEWithMD5AndDES" />
+		<property name="passwordEnvName" value="APP_ENCRYPTION_PASSWORD" />
+	</bean>
+
+
+	<!-- -->
+	<!-- The will be the encryptor used for decrypting configuration values. -->
+	<!-- -->
+	<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		<property name="config" ref="environmentVariablesConfiguration" />
+	</bean>
+
+
+	<!-- -->
+	<!-- The EncryptablePropertyPlaceholderConfigurer will read the -->
+	<!-- .properties files and make their values accessible as ${var} -->
+	<!-- -->
+	<!-- Our "configurationEncryptor" bean (which implements -->
+	<!-- org.jasypt.encryption.StringEncryptor) is set as a constructor arg. -->
+	<!-- -->
+	<bean id="propertyConfigurer"
+		class="org.jasypt.spring3.properties.EncryptablePropertyPlaceholderConfigurer">
+		<constructor-arg ref="configurationEncryptor" />
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/db.properties</value>
+			</list>
+		</property>
+
+	</bean>
+
+
+	<!-- -->
+	<!-- Our datasource is configured here, in the usual way. Jasypt's -->
+	<!-- EncryptedPropertyPlaceholderConfigurer will make sure that the -->
+	<!-- ${datasource.password} file gets decrypted and the DBCP DataSource -->
+	<!-- will be correctly initialised. -->
+	<!-- -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>${datasource.driver}</value>
+		</property>
+		<property name="url">
+			<value>${datasource.url}</value>
+		</property>
+		<property name="username">
+			<value>${datasource.username}</value>
+		</property>
+		<property name="password">
+			<value>${datasource.password}</value>
+		</property>
+	</bean>
+
+</beans>
