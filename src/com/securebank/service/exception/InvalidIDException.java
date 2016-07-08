@@ -1,4 +1,4 @@
-package com.securebank.cxfrestservice.exception;
+package com.securebank.service.exception;
 
 public class InvalidIDException extends Exception {
 
