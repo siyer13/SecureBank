@@ -1,4 +1,4 @@
-package com.securebank.cxfrestservice.dao;
+package com.securebank.service.dao;
 
 import com.securebank.cxfrestservice.exception.AddCustomerException;
 import com.securebank.cxfrestservice.exception.InvalidIDException;
