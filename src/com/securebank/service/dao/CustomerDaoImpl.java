@@ -1,4 +1,4 @@
-package com.securebank.cxfrestservice.dao;
+package com.securebank.service.dao;
 
 import java.util.List;
 import java.util.UUID;
