@@ -1,4 +1,4 @@
-package com.securebank.cxfrestservice.model;
+package com.securebank.service.model;
 
 import java.util.Date;
 import java.util.List;
